@@ -1,0 +1,8 @@
+#Folders
+/inputs/
+/.vscode/
+
+#Artifacts
+*.fasl
+
+.DS_Store
