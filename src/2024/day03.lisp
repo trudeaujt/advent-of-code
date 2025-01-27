@@ -1,7 +1,4 @@
-(defpackage :helpers.input
-  (:use :cl)) ; You can add exported symbols here if needed
-
-(in-package :helpers.input)
+(ql:quickload "cl-ppcre")
 
 (ql:quickload '(dexador cl-json))
 
@@ -23,9 +20,7 @@
          (output-file (merge-pathnames (format nil "day~2,'0D.txt" day) output-dir)))
     (ensure-directory-exists output-dir)
     (if (probe-file output-file)
-        (progn
-          (format t "Input for year ~D, day ~D already downloaded.~%" year day)
-          (uiop:read-file-lines output-file))
+        (uiop:read-file-lines output-file)
         (multiple-value-bind (body status) (dex:get url :headers headers)
           (if (= status 200)
               (progn
@@ -38,9 +33,16 @@
                 (uiop:split-string body :separator uiop:+lf+))
               (error "Failed to fetch input for year ~D, day ~D: ~A" year day '(body status)))))))
 
-(defun get-puzzle-input (year day)
+(defun get-puzzle-input (year day &optional (type "string"))
   "Get the puzzle input for the given YEAR and DAY, downloading it if necessary."
-  (fetch-puzzle-input year day))
+  (let ((file-input (fetch-puzzle-input year day)))
+    (case type
+      (:array  (to-array  file-input))
+      (:single-string (to-single-string file-input)))))
+
+(defun to-single-string (input)
+  "Parse a CONS of strings into a single string."
+  (format nil "~{~A~}" input))
 
 (defun to-array (input)
   "Parse a multi-line string into an array of lines."
@@ -54,3 +56,30 @@
           ) 
         input :initial-value '(""))
     'vector)))
+
+(defun part1 (text)
+  (let ((sum 0))
+  (cl-ppcre:do-register-groups ((#'parse-integer x y))
+      ("mul\\((\\d{1,3}),(\\d{1,3})\\)" text sum)
+    (incf sum (* x y)))))
+
+(equal 188741603 (part1 (get-puzzle-input 2024 3 :single-string)))
+
+(defun part2 (text)
+  ;; the string starts in the "do" stage, so we work with it until the first "don't", and parse the string from there.
+  (let ((sum 0)
+        (offset (length "don't()"))
+        (start (search "don't()" text)))
+    (incf sum (part1 (subseq text 0 start)))
+    (setf text (subseq text (+ start offset)))
+    ;; recursively parse each subsection inbetween the "do"s and "don't"s
+    (labels ((parse (line)
+                    (let ((do-idx (search "do" line))
+                          (dont-idx (search "don't()" line))) 
+                      (when do-idx 
+                            (parse (subseq line (+ dont-idx offset)))
+                            (incf sum (part1 (subseq line do-idx dont-idx)))))))
+      (parse text))))
+
+
+(equal 67269798 (part2 (get-puzzle-input 2024 03 :single-string)))

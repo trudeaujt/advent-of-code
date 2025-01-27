@@ -1,10 +1,3 @@
-(defpackage :helpers.input
-  (:use :cl)) ; You can add exported symbols here if needed
-
-(in-package :helpers.input)
-
-(ql:quickload '(dexador cl-json))
-
 (defparameter *aoc-input-base-dir* "inputs/")
 (defparameter *aoc-base-url* "https://adventofcode.com/")
 ;(defparameter *session-token* (uiop:getenv "AOC_SESSION_TOKEN"))
@@ -23,9 +16,7 @@
          (output-file (merge-pathnames (format nil "day~2,'0D.txt" day) output-dir)))
     (ensure-directory-exists output-dir)
     (if (probe-file output-file)
-        (progn
-          (format t "Input for year ~D, day ~D already downloaded.~%" year day)
-          (uiop:read-file-lines output-file))
+        (uiop:read-file-lines output-file)
         (multiple-value-bind (body status) (dex:get url :headers headers)
           (if (= status 200)
               (progn
@@ -38,9 +29,16 @@
                 (uiop:split-string body :separator uiop:+lf+))
               (error "Failed to fetch input for year ~D, day ~D: ~A" year day '(body status)))))))
 
-(defun get-puzzle-input (year day)
+(defun get-puzzle-input (year day &optional (type "string"))
   "Get the puzzle input for the given YEAR and DAY, downloading it if necessary."
-  (fetch-puzzle-input year day))
+  (let ((file-input (fetch-puzzle-input year day)))
+    (case type
+      (:array  (to-array  file-input))
+      (:single-string (to-single-string file-input)))))
+
+(defun to-single-string (input)
+  "Parse a CONS of strings into a single string."
+  (format nil "~{~A~}" input))
 
 (defun to-array (input)
   "Parse a multi-line string into an array of lines."
