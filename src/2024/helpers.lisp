@@ -1,12 +1,14 @@
 (defparameter *aoc-input-base-dir* "inputs/")
 (defparameter *aoc-base-url* "https://adventofcode.com/")
 ;(defparameter *session-token* (uiop:getenv "AOC_SESSION_TOKEN"))
-(defparameter *session-token* "53616c7465645f5f79aa6e64302e4bb61d9b0b3914a58fe30f4d60ac14232d234bcd592cfb7b17cf9c8289d9933f392e07010c56f972aa1134543ad47daa221d")
+(defparameter *session-token* "53616c7465645f5fd91fa6ca57bf6db645585807c947bb09187e70733e9b0d8ad59788af016808d57dab7e78e2fb86dc084cea1a8505d242587976a083ca6152")
 
 (defun ensure-directory-exists (dir)
   "Ensure that the directory DIR exists, creating it if necessary."
   (unless (uiop:directory-exists-p dir)
     (ensure-directories-exist dir)))
+
+(ql:quickload :dexador)
 
 (defun fetch-puzzle-input (year day)
   "Fetch the puzzle input for the given YEAR and DAY from Advent of Code."
@@ -34,7 +36,8 @@
   (let ((file-input (fetch-puzzle-input year day)))
     (case type
       (:array  (to-array  file-input))
-      (:single-string (to-single-string file-input)))))
+      (:single-string (to-single-string file-input))
+      (:2d-array (to-2d-array file-input)))))
 
 (defun to-single-string (input)
   "Parse a CONS of strings into a single string."
@@ -48,7 +51,16 @@
         (lambda (acc char)
           (if (char= char #\Newline)
               (cons "" acc)
-              (cons (concatenate 'string (first acc) (string char)) (rest acc)))
-          ) 
+              (cons (concatenate 'string (first acc) (string char)) (rest acc)))) 
         input :initial-value '(""))
     'vector)))
+
+(defun to-2d-array (input)
+  (let* ((rows (length input))
+       (cols (length (first input)))
+       (matrix (make-array (list rows cols) :element-type 'character)))
+  (loop for i from 0 below rows
+        for line in input do
+        (loop for j from 0 below cols do
+              (setf (aref matrix i j) (aref line j))))
+  matrix))
