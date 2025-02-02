@@ -57,5 +57,5 @@
         sum))
 
 (defparameter debug-mode nil)
-(equal 2718 (part1 (get-puzzle-input 2024 04 :2d-array)))
-(equal 2046 (part2 (get-puzzle-input 2024 04 :2d-array)))
+(time (equal 2718 (part1 (get-puzzle-input 2024 04 :2d-array))))
+(time (equal 2046 (part2 (get-puzzle-input 2024 04 :2d-array))))

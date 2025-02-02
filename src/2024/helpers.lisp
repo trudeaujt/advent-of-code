@@ -47,20 +47,23 @@
   "Parse a multi-line string into an array of lines."
   (remove-if (lambda (line) (string= "" line))
       (coerce 
-    (reduce 
+       (reduce 
         (lambda (acc char)
           (if (char= char #\Newline)
               (cons "" acc)
               (cons (concatenate 'string (first acc) (string char)) (rest acc)))) 
         input :initial-value '(""))
-    'vector)))
+       'vector)))
 
 (defun to-2d-array (input)
   (let* ((rows (length input))
-       (cols (length (first input)))
-       (matrix (make-array (list rows cols) :element-type 'character)))
-  (loop for i from 0 below rows
-        for line in input do
-        (loop for j from 0 below cols do
-              (setf (aref matrix i j) (aref line j))))
-  matrix))
+         (cols (length (first input)))
+         (matrix (make-array (list rows cols) :element-type 'character)))
+   (loop for i from 0 below rows
+         for line in input do
+         (loop for j from 0 below cols do
+               (setf (aref matrix i j) (aref line j))))
+   matrix))
+
+(let ((pair(split-sequence:split-sequence #\| "AB|CD")))
+  (cons (first pair) (second pair)))
