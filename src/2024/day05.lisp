@@ -1,6 +1,7 @@
 (load "~/code/advent-of-code/src/2024/helpers.lisp")
+(load "~/sync/advent-of-code/src/2024/helpers.lisp")
 
-(defparameter rules 
+(defparameter tiny-input
  "47|53
 97|13
 97|61
@@ -21,15 +22,20 @@
 75|61
 47|29
 75|13
-53|13")
+53|13
 
-(defparameter updates 
- "75,47,61,53,29
+75,47,61,53,29
 97,61,53,29,13
 75,29,13
 75,97,47,61,53
 61,13,29
 97,13,75,29,47")
+
+(first (let ((sep-index (search "#\Newline#\Newline" tiny-input)))
+         (if sep-index
+             (list (subseq tiny-input 0 sep-index)
+                   (subseq tiny-input (+ sep-index 2)))
+             (list tiny-input))))
 
 (defparameter rule-table
     (let ((rule-table (make-hash-table :test #'equal)))
@@ -46,10 +52,14 @@
          update-list))
 
 (find "47" (gethash "75" rule-table) :test #'equal)
-(type-of (first (gethash "75" rule-table)))
+(gethash "75" rule-table)
 
 (let* ((updates (first update-list))
        (key (car updates))
        (subsequents (cdr updates))
        (values (gethash key rule-table)))
- (format t "Updates: ~A, key: ~A, subs: ~A, values ~A~%" updates key subsequents values))
+  (format t "Subs: ~A, values: ~A" subsequents values)
+  (subsetp subsequents values :test #'equal))
+
+(defun part1 (input)
+  ())
