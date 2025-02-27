@@ -60,7 +60,6 @@
                            (tester (cdr lst) budget))
                           (t (max (tester (cons a (cddr lst)) (1- budget))
                                   (tester (cdr lst) (1- budget))))))))
-
     (tester list error-budget)))
 
 (within-spec-recursive '(1 7 8 9 10) 1)
@@ -105,20 +104,16 @@
 
 (time (day02))
 
-
 (defun is-safe (row)
-  "Check if the row is strictly increasing or decreasing with increments/decrements of at most 3."
   (let ((inc (loop for i from 0 below (1- (length row))
                    collect (- (nth (1+ i) row) (nth i row)))))
     (or (subsetp inc '(1 2 3) :test #'<=)
         (subsetp inc '(-1 -2 -3) :test #'<=))))
 
 (defun safe-count-without-removal (data)
-  "Count the number of safe rows without removing any elements."
   (count-if #'is-safe data))
 
 (defun safe-count-with-removal (data)
-  "Count the number of safe rows allowing removal of one element."
   (count-if (lambda (row)
               (some (lambda (i)
                       (is-safe (append (subseq row 0 i) (subseq row (1+ i)))))
@@ -126,13 +121,11 @@
             data))
 
 (defun day02-part2 (data)
-  "Solve Part 2 by counting safe rows with and without removal."
   (let ((safe-without-removal (safe-count-without-removal data))
         (safe-with-removal (safe-count-with-removal data)))
     (format t "Safe rows without removal: ~A~%" safe-without-removal)
     (format t "Safe rows with removal: ~A~%" safe-with-removal)))
 
-;; Example usage
 (defparameter test-data '((7 6 4 2 1)
                           (1 2 7 8 9)
                           (9 7 6 2 1)

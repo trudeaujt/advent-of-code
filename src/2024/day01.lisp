@@ -2,7 +2,7 @@
 
 (defpackage :day01
   (:use :cl)
-  (:import-from :helpers.input :get-puzzle-input :to-array)) ; Import specific symbols from the helpers.input package
+  (:import-from :helpers.input :get-puzzle-input :to-array))
 
 (in-package :day01)
 
